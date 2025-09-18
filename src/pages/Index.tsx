@@ -1,12 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Navigation } from '@/components/Navigation';
+import { UploadResume } from '@/components/UploadResume';
+import { ViewResumes } from '@/components/ViewResumes';
+import { Chatbot } from '@/components/Chatbot';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('upload');
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'upload':
+        return <UploadResume />;
+      case 'view':
+        return <ViewResumes />;
+      case 'chat':
+        return <Chatbot />;
+      default:
+        return <UploadResume />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10">
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <main className="pt-6">
+        {renderContent()}
+      </main>
     </div>
   );
 };
