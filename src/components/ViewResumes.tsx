@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Download, Eye, Search, Calendar, User } from 'lucide-react';
+import { FileText, Download, Eye, Search, Calendar, User, Trash2 } from 'lucide-react';
 
 interface Resume {
   id: string;
@@ -16,8 +16,8 @@ interface Resume {
 }
 
 export const ViewResumes = () => {
-  const [resumes, setResumes] = useState<Resume[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [resumes, setResumes] = useState<Resume[]>([]);
   const [filteredResumes, setFilteredResumes] = useState<Resume[]>([]);
 
   useEffect(() => {
@@ -83,6 +83,12 @@ export const ViewResumes = () => {
   const handleDownload = (resume: Resume) => {
     // In a real app, this would trigger a download
     alert(`Downloading ${resume.name}...`);
+  };
+
+  const handleDelete = (resumeId: string) => {
+    const updatedResumes = resumes.filter(resume => resume.id !== resumeId);
+    setResumes(updatedResumes);
+    localStorage.setItem('resumes', JSON.stringify(updatedResumes));
   };
 
   return (
@@ -186,6 +192,14 @@ export const ViewResumes = () => {
                     >
                       <Download className="h-3 w-3 mr-1" />
                       Download
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDelete(resume.id)}
+                      className="px-2"
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </CardContent>

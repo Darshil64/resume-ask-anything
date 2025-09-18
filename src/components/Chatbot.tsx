@@ -63,7 +63,7 @@ export const Chatbot = () => {
       title: 'New Conversation',
       messages: [{
         id: '1',
-        content: "Hello! I'm your AI assistant for resume analysis. I can help you find candidates, analyze skills, and answer questions about uploaded resumes. How can I help you today?",
+        content: "Hello! I'm JobSage, your AI assistant for resume analysis. I can help you find candidates, analyze skills, and answer questions about uploaded resumes. How can I help you today?",
         sender: 'assistant',
         timestamp: new Date()
       }],
@@ -159,144 +159,157 @@ export const Chatbot = () => {
   const currentConv = getCurrentConversation();
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">AI Resume Assistant</h1>
-        <p className="text-muted-foreground">Ask questions about candidates and get intelligent insights</p>
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-64 bg-card border-r border-border flex flex-col">
+        <div className="p-4 border-b border-border">
+          <Button 
+            onClick={createNewConversation}
+            className="w-full justify-start"
+            variant="outline"
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            New Chat
+          </Button>
+        </div>
+        
+        <ScrollArea className="flex-1">
+          <div className="p-2 space-y-1">
+            {conversations.map((conv) => (
+              <div
+                key={conv.id}
+                className={`p-3 rounded-lg cursor-pointer transition-all group relative ${
+                  currentConversation === conv.id 
+                    ? 'bg-accent' 
+                    : 'hover:bg-accent/50'
+                }`}
+                onClick={() => setCurrentConversation(conv.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0 pr-2">
+                    <p className="text-sm font-medium truncate">{conv.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {conv.lastUpdated.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteConversation(conv.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 absolute right-2"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[700px]">
-        {/* Conversation History */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Conversations</CardTitle>
-              <Button variant="outline" size="sm" onClick={createNewConversation}>
-                <MessageSquare className="h-3 w-3 mr-1" />
-                New
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="border-b border-border p-4">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary/80 to-primary rounded-full flex items-center justify-center">
+              <Bot className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="font-semibold text-foreground">JobSage</h1>
+              <p className="text-sm text-muted-foreground">AI Resume Assistant</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Messages */}
+        <ScrollArea className="flex-1">
+          <div className="max-w-4xl mx-auto p-4">
+            <div className="space-y-6">
+              {currentConv?.messages.map((msg) => (
+                <div key={msg.id} className="group">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      {msg.sender === 'assistant' ? (
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary/80 to-primary rounded-full flex items-center justify-center">
+                          <Bot className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent/80 rounded-full flex items-center justify-center">
+                          <User className="h-4 w-4 text-accent-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground">
+                          {msg.sender === 'assistant' ? 'JobSage' : 'You'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {msg.timestamp.toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div className="prose prose-sm max-w-none text-foreground">
+                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {isTyping && (
+                <div className="group">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary/80 to-primary rounded-full flex items-center justify-center">
+                        <Bot className="h-4 w-4 text-primary-foreground" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground">JobSage</span>
+                        <span className="text-xs text-muted-foreground">typing...</span>
+                      </div>
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+        </ScrollArea>
+
+        {/* Input */}
+        <div className="border-t border-border p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex space-x-3">
+              <Input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Ask JobSage about candidates, skills, or resume analysis..."
+                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                disabled={isTyping}
+                className="flex-1"
+              />
+              <Button 
+                onClick={sendMessage} 
+                disabled={!message.trim() || isTyping}
+                size="sm"
+                className="px-4"
+              >
+                <Send className="h-4 w-4" />
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[580px]">
-              <div className="space-y-2 p-4">
-                {conversations.map((conv) => (
-                  <div
-                    key={conv.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-all group ${
-                      currentConversation === conv.id 
-                        ? 'bg-primary/10 border border-primary/20' 
-                        : 'hover:bg-accent'
-                    }`}
-                    onClick={() => setCurrentConversation(conv.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{conv.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {conv.lastUpdated.toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteConversation(conv.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        {/* Chat Interface */}
-        <Card className="lg:col-span-3 flex flex-col">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center space-x-2">
-              <Bot className="h-5 w-5 text-primary" />
-              <span>AI Assistant</span>
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="flex-1 flex flex-col p-0">
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
-                {currentConv?.messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`flex space-x-2 max-w-[80%] ${
-                        msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                      }`}
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className={msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-accent'}>
-                          {msg.sender === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div
-                        className={`rounded-lg p-3 ${
-                          msg.sender === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-accent'
-                        }`}
-                      >
-                        <p className="text-sm">{msg.content}</p>
-                        <p className={`text-xs mt-1 opacity-70`}>
-                          {msg.timestamp.toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {isTyping && (
-                  <div className="flex justify-start">
-                    <div className="flex space-x-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-accent">
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="bg-accent rounded-lg p-3">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-
-            <div className="border-t p-4">
-              <div className="flex space-x-2">
-                <Input
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Ask about candidates, skills, or resume analysis..."
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  disabled={isTyping}
-                />
-                <Button onClick={sendMessage} disabled={!message.trim() || isTyping}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
